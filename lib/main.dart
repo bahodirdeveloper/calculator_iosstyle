@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 void main() {
   runApp(CalculatorApp());
 }
+
 class CalculatorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -12,6 +13,7 @@ class CalculatorApp extends StatelessWidget {
     );
   }
 }
+
 class CalculatorUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class CalculatorUI extends StatelessWidget {
                   fontSize: 80,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  fontFamily: 'SF Pro Text',  // iOS kalkulyator fonti
                 ),
               ),
             ),
@@ -60,9 +63,11 @@ class CalculatorUI extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: texts.map((text) {
           final isOperator = text == '÷' || text == '×' || text == '-' || text == '+' || text == '=';
+          final isSpecial = text == 'AC' || text == '±' || text == '%'; // Maxsus tugmalar
           return _calcButton(
             text,
             isOperator ? operatorColor : numberColor,
+            textColor: isSpecial ? Colors.black : Colors.white,
           );
         }).toList(),
       ),
@@ -76,13 +81,13 @@ class CalculatorUI extends StatelessWidget {
         children: [
           Expanded(
             flex: 2,
-            child: _calcButton('0', numberColor),
+            child: _calcButton('0', numberColor, textColor: Colors.white, isLeftAligned: true),
           ),
           Expanded(
-            child: _calcButton('.', numberColor),
+            child: _calcButton('.', numberColor, textColor: Colors.white),
           ),
           Expanded(
-            child: _calcButton('=', operatorColor),
+            child: _calcButton('=', operatorColor, textColor: Colors.white),
           ),
         ],
       ),
@@ -90,7 +95,7 @@ class CalculatorUI extends StatelessWidget {
   }
 
   // Har bir tugma uchun widget
-  Widget _calcButton(String text, Color color) {
+  Widget _calcButton(String text, Color color, {Color textColor = Colors.white, bool isLeftAligned = false}) {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: AspectRatio(
@@ -102,14 +107,19 @@ class CalculatorUI extends StatelessWidget {
             borderRadius: BorderRadius.circular(100),
           ),
           child: Center(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: text == '÷' || text == '×' || text == '-' || text == '+' || text == '='
-                    ? Colors.white
-                    : Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+            child: Align(
+              alignment: isLeftAligned ? Alignment.centerLeft : Alignment.center,
+              child: Padding(
+                padding: EdgeInsets.only(left: isLeftAligned ? 20.0 : 0), // Chapga masofa qo‘shish
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'SF Pro Text',  // iOS kalkulyator fonti
+                  ),
+                ),
               ),
             ),
           ),
