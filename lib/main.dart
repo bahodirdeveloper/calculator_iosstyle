@@ -1,128 +1,136 @@
 import 'package:flutter/material.dart';
+import 'logic.dart';
 
 void main() {
   runApp(CalculatorApp());
 }
-
 class CalculatorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CalculatorUI(),
+      home: CalculatorScreen(),
     );
   }
 }
-
-class CalculatorUI extends StatelessWidget {
+class CalculatorScreen extends StatefulWidget {
+  @override
+  _CalculatorScreenState createState() => _CalculatorScreenState();
+}
+class _CalculatorScreenState extends State<CalculatorScreen> {
+  final CalculatorLogic calculator = CalculatorLogic();
+  void buttonPressed(String buttonText) {
+    setState(() {
+      calculator.handleInput(buttonText);
+    });
+  }
+  Widget buildButton(
+      String buttonText,
+      Color backgroundColor, {
+        Color textColor = Colors.white,
+        bool isWide = false,
+      }) {
+    return Expanded(
+      flex: isWide ? 2 : 1, // 0 keng bo'lishi uchun flex ishlatdim
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GestureDetector(
+          onTap: () => buttonPressed(buttonText),
+          child: Container(
+            height: MediaQuery.of(context).size.width * 0.2,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              shape: isWide ? BoxShape.rectangle : BoxShape.circle,
+              borderRadius: isWide ? BorderRadius.circular(50) : null,
+            ),
+            child: Align(
+              alignment: isWide ? Alignment.centerLeft : Alignment.center,
+              child: Padding(
+                padding: isWide ? const EdgeInsets.only(left: 50.0) : EdgeInsets.zero,
+                child: Text(
+                  buttonText,
+                  style: TextStyle(
+                    fontSize: 35.0,
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'SF Pro Text',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            // Ekrandagi raqamlarni ko'rsatish joyi
-            Container(
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Text(
-                '0',
-                style: TextStyle(
-                  fontSize: 80,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontFamily: 'SF Pro Text',  // iOS kalkulyator fonti
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            // Tugmalar grid qismi
+          children: <Widget>[
+            // Ekranda natija chiqadigan qismi
             Expanded(
-              child: Column(
-                children: [
-                  _buildButtonRow(['AC', '±', '%', '÷'], Colors.grey, Colors.orange),
-                  _buildButtonRow(['7', '8', '9', '×'], Colors.white12, Colors.orange),
-                  _buildButtonRow(['4', '5', '6', '-'], Colors.white12, Colors.orange),
-                  _buildButtonRow(['1', '2', '3', '+'], Colors.white12, Colors.orange),
-                  _buildLastRow(['0', '.', '='], Colors.white12, Colors.orange),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Tugmalar uchun bitta qatordagi qator
-  Widget _buildButtonRow(List<String> texts, Color numberColor, Color operatorColor) {
-    return Expanded(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: texts.map((text) {
-          final isOperator = text == '÷' || text == '×' || text == '-' || text == '+' || text == '=';
-          final isSpecial = text == 'AC' || text == '±' || text == '%'; // Maxsus tugmalar
-          return _calcButton(
-            text,
-            isOperator ? operatorColor : numberColor,
-            textColor: isSpecial ? Colors.black : Colors.white,
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // So'nggi qatordagi "0", "." va "=" tugmalari
-  Widget _buildLastRow(List<String> texts, Color numberColor, Color operatorColor) {
-    return Expanded(
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: _calcButton('0', numberColor, textColor: Colors.white, isLeftAligned: true),
-          ),
-          Expanded(
-            child: _calcButton('.', numberColor, textColor: Colors.white),
-          ),
-          Expanded(
-            child: _calcButton('=', operatorColor, textColor: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Har bir tugma uchun widget
-  Widget _calcButton(String text, Color color, {Color textColor = Colors.white, bool isLeftAligned = false}) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: AspectRatio(
-        aspectRatio: 1, // Tugmalarni kvadrat shaklda qiladi
-        child: Container(
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Center(
-            child: Align(
-              alignment: isLeftAligned ? Alignment.centerLeft : Alignment.center,
-              child: Padding(
-                padding: EdgeInsets.only(left: isLeftAligned ? 20.0 : 0), // Chapga masofa qo‘shish
+              child: Container(
+                alignment: Alignment.bottomRight,
+                padding: EdgeInsets.all(40.0),
                 child: Text(
-                  text,
+                  calculator.displayText,
                   style: TextStyle(
-                    color: textColor,
-                    fontSize: 30,
+                    fontSize: 80,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'SF Pro Text',  // iOS kalkulyator fonti
+                    fontFamily: 'SF Pro Text',
                   ),
                 ),
               ),
             ),
-          ),
+            // Buttonlar qismi
+            Column(
+              children: [
+                Row(
+                  children: [
+                    buildButton('AC', Colors.grey, textColor: Colors.black),
+                    buildButton('±', Colors.grey, textColor: Colors.black),
+                    buildButton('%', Colors.grey, textColor: Colors.black),
+                    buildButton('÷', Colors.orange),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildButton('7', Colors.white12),
+                    buildButton('8', Colors.white12),
+                    buildButton('9', Colors.white12),
+                    buildButton('×', Colors.orange),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildButton('4', Colors.white12),
+                    buildButton('5', Colors.white12),
+                    buildButton('6', Colors.white12),
+                    buildButton('-', Colors.orange),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildButton('1', Colors.white12),
+                    buildButton('2', Colors.white12),
+                    buildButton('3', Colors.white12),
+                    buildButton('+', Colors.orange),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildButton('0', Colors.white12, isWide: true),
+                    buildButton('.', Colors.white12),
+                    buildButton('=', Colors.orange),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
