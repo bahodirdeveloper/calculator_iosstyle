@@ -1,7 +1,7 @@
 import 'dart:math';
 class CalculatorLogic {
   String _displayText = '0';
-  double? _firstOperand;
+  double? _firstOper;
   String? _operator;
   bool _shouldClear = false;
   String get displayText => _displayText;
@@ -22,7 +22,7 @@ class CalculatorLogic {
   }
   void _clear() {
     _displayText = '0';
-    _firstOperand = null;
+    _firstOper = null;
     _operator = null;
     _shouldClear = false;
   }
@@ -40,30 +40,30 @@ class CalculatorLogic {
     _displayText = (value / 100).toString();
   }
   void _setOperator(String operator) {
-    _firstOperand = double.tryParse(_displayText);
+    _firstOper = double.tryParse(_displayText);
     _operator = operator;
     _shouldClear = true;
   }
   void _calculateResult() {
-    if (_firstOperand == null || _operator == null) return;
-    final secondOperand = double.tryParse(_displayText) ?? 0;
+    if (_firstOper == null || _operator == null) return;
+    final secondOper = double.tryParse(_displayText) ?? 0;
     double result = 0;
     switch (_operator) {
       case '÷':
-        result = _firstOperand! / secondOperand;
+        result = _firstOper! / secondOper;
         break;
       case '×':
-        result = _firstOperand! * secondOperand;
+        result = _firstOper! * secondOper;
         break;
       case '-':
-        result = _firstOperand! - secondOperand;
+        result = _firstOper! - secondOper;
         break;
       case '+':
-        result = _firstOperand! + secondOperand;
+        result = _firstOper! + secondOper;
         break;
     }
     _displayText = result.toString();
-    _firstOperand = null;
+    _firstOper = null;
     _operator = null;
     _shouldClear = true;
   }
