@@ -36,8 +36,20 @@ class CalculatorLogic {
     }
   }
   void _calcfoiz() {
-    final value = double.tryParse(_displayText) ?? 0;
-    _displayText = (value / 100).toString();
+    if (_operator != null && _firstOper != null) {
+      // Agar birinchi operand va operator mavjud bo'lsa
+      final secondOper = double.tryParse(_displayText) ?? 0;
+      // Ikkinchi operandni birinchi operandga nisbatan foizni hisoblash
+      final result = (_firstOper! * secondOper) / 100;
+      _displayText = result.toStringAsFixed(2);
+      // Keyingi hisoblash uchun birinchi operandni natijaga moslashtirish
+      _firstOper = result;
+      _operator = null; // Operatorni tozalash
+    } else {
+      // Agar faqat bitta operand mavjud bo'lsa, 100 ga bo'linadi
+      final value = double.tryParse(_displayText) ?? 0;
+      _displayText = (value / 100).toStringAsFixed(2);
+    }
   }
   void _setOperator(String operator) {
     _firstOper = double.tryParse(_displayText);
@@ -50,6 +62,10 @@ class CalculatorLogic {
     double result = 0;
     switch (_operator) {
       case '÷':
+        if (secondOper == 0) {
+          _displayText = 'Error'; // Nolga bo'lganda xato berishi uchun
+          return;
+        }
         result = _firstOper! / secondOper;
         break;
       case '×':
@@ -72,6 +88,9 @@ class CalculatorLogic {
       _displayText = digit;
       _shouldClear = false;
     } else {
+      if (digit == '.' && _displayText.contains('.')) {
+        return; // Agar "." oldin yozilgan  bo'lsa, boshqa  yozmaydi
+      }
       if (_displayText == '0' && digit != '.') {
         _displayText = digit;
       } else {
